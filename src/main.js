@@ -7,12 +7,20 @@ let deckId;
 const shuffleButton = document.querySelector('.shuffle');
 const drawButton = document.querySelector('.draw');
 const stopButton = document.querySelector('.stop');
+const resetButton = document.getElementsByClassName('reset')[0];
+
+// variável para salvar os valores de cada jogador (1: player e 2: comp)
+const playersScore = {
+  1: 0,
+  2: 0,
+};
+const jackNumber = 21;
 
 const startNewGame = () => {
   fetch('https://deckofcardsapi.com/api/deck/new/shuffle/')
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      // console.log(data);
       deckId = data.deck_id;
       shuffleButton.disabled = true;
       stopButton.disabled = false;
@@ -23,28 +31,18 @@ const startNewGame = () => {
     });
 };
 
-const playersScore = {
-  1: 0,
-  2: 0,
-};
-
 const stopGame = () => {
-  const jackNumber = 21;
   const resultDiv = document.getElementsByClassName('hidden')[0];
   const { 1: player, 2: computer } = playersScore;
-  if (player > jackNumber) {
-    console.log('voce perdeu', playersScore);
-    resultDiv.src = 'src/imgs/lose.png';
-  } else if (computer > jackNumber) {
-    console.log('voce ganhou', playersScore);
-  } else if (player > computer) {
-    console.log('voce ganhou', playersScore);
-  } else if (playersScore[1] < computer) {
+  if (player > jackNumber || (player < computer && computer <= jackNumber)) {
     resultDiv.src = 'src/imgs/lose.png';
   }
   resultDiv.classList.remove('hidden');
   const scoreDiv = document.querySelector('.player-2.score');
   scoreDiv.textContent = computer;
+  stopButton.disabled = true;
+  drawButton.disabled = true;
+  resetButton.disabled = false;
 };
 
 const addCardToPlayer = (card, playerNumber) => {
@@ -75,6 +73,9 @@ const addCardToPlayer = (card, playerNumber) => {
   if (playerNumber === 1) {
     scoreDiv.textContent = playersScore[playerNumber];
   }
+  if (playersScore[1] >= jackNumber) {
+    stopGame();
+  }
 };
 
 const drawCard = () => {
@@ -90,13 +91,12 @@ const drawCard = () => {
       const card = data.cards[0];
       addCardToPlayer(card, 2);
     });
-  const maxScore = 20;
-  if (playersScore[1] > maxScore) {
-    stopGame();
-  }
 };
 
 // vamos chamar as funcões ao clicar nos botoes
 shuffleButton.addEventListener('click', startNewGame);
 drawButton.addEventListener('click', drawCard);
 stopButton.addEventListener('click', stopGame);
+resetButton.addEventListener('click', () => {
+  window.location.reload(true);
+});
