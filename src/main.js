@@ -33,9 +33,13 @@ const startNewGame = () => {
 
 const stopGame = () => {
   const resultDiv = document.getElementsByClassName('hidden')[0];
+  const result = document.getElementById('result');
   const { 1: player, 2: computer } = playersScore;
   if (player > jackNumber || (player < computer && computer <= jackNumber)) {
     resultDiv.src = 'src/imgs/lose.png';
+    result.innerText = 'VOCÊ PERDEU';
+  } else {
+    result.innerText = 'VOCÊ GANHOU';
   }
   resultDiv.classList.remove('hidden');
   const scoreDiv = document.querySelector('.player-2.score');
